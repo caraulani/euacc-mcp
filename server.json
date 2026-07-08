@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.caraulani/euacc-mcp",
-  "description": "Live European funding data inside your AI: open EU grant calls, every programme, consortium partners, incubators, VCs and more — via MCP.",
+  "description": "Live EU funding data in your AI: grant calls, programmes, consortium partners, VCs, incubators.",
   "version": "1.0.0",
   "repository": {
     "url": "https://github.com/caraulani/euacc-mcp",
