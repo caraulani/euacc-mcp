@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "euacc": {
+      "url": "https://www.euacc.ai/api/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_EUACC_KEY"
+      }
+    }
+  }
+}
