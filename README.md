@@ -14,11 +14,12 @@ Ask *"what EU grants are open for hydrogen startups closing this quarter?"* and 
 
 ---
 
-## What you can ask (14 tools)
+## What you can ask (15 tools)
 
 | Ask your AI… | Tool |
 | --- | --- |
 | "What Horizon Europe calls are open for AI in health, closing soonest?" | `search_open_calls` |
+| "Is HORIZON-CL4-2026-01-DIGITAL-12 worth pursuing for us? Budget, funding rate, eligibility, official link." | `get_call` |
 | "How does the EIC Accelerator work, and am I eligible?" | `get_programme` |
 | "List every EU programme you cover." | `list_programmes` |
 | "What EU funding is there for cleantech?" | `get_sector` |
