@@ -7,7 +7,7 @@ EUACC is a hosted [Model Context Protocol](https://modelcontextprotocol.io) (MCP
 Ask *"what EU grants are open for hydrogen startups closing this quarter?"* and your AI returns real calls, real deadlines and real partners, pulled the moment you ask, straight from the official EU sources. Each answer cites its `euacc.ai` source link.
 
 - 🌐 **Connect it:** https://www.euacc.ai/ai-tools
-- 🔑 **Endpoint:** `https://www.euacc.ai/api/mcp`
+- 🔑 **Endpoint:** `https://www.euacc.ai/api/mcp` (sign in with EUACC via OAuth, or use a connector key)
 - 💶 **Free** — 1,000 lookups/month with a free account. No card.
 
 > EUACC is a **data connector, not a ghostwriter.** It feeds your AI the public, source-backed map of EU funding. Your project, your technology and anything you write stay inside your own AI — nothing is uploaded to EUACC.
@@ -38,22 +38,55 @@ Plus `list_sectors` and `list_countries` for discovery. The assistant picks the 
 
 ## Setup
 
-### 1. Get a free key
-Create a free account at **[euacc.ai](https://www.euacc.ai/ai-tools)** (no card), then generate a connector key on the dashboard. The key is shown once — copy it.
+There are two ways to connect. Both use the same endpoint, `https://www.euacc.ai/api/mcp`, and the same free account.
 
-### 2. Add the connector
+- **Sign in with EUACC (OAuth).** The default for Claude, ChatGPT, Grok and Claude Code. You paste the endpoint, your AI opens a browser window, you sign in to EUACC and click *Allow access*. No key to copy.
+- **Connector key (API key).** For clients that only accept a static header, and for headless or CI setups. You generate a key on your dashboard and send it as `Authorization: Bearer YOUR_EUACC_KEY`.
 
-**Claude (web & desktop)** — Settings → Connectors → *Add custom connector*:
-- URL: `https://www.euacc.ai/api/mcp`
-- Authorization header: `Bearer YOUR_EUACC_KEY`
+### Option A: sign in with EUACC (OAuth)
+
+You need a free account at **[euacc.ai](https://www.euacc.ai/ai-tools)** (no card). Then:
+
+**Claude (web & desktop):** Settings → Connectors → *Add custom connector*. Name it EUACC, paste `https://www.euacc.ai/api/mcp`, click *Add*. Claude opens EUACC in your browser; sign in and approve access.
+
+**Claude Code**
+```bash
+claude mcp add --transport http euacc https://www.euacc.ai/api/mcp
+```
+Then run `/mcp` inside Claude Code and pick *Authenticate*; a browser window opens for the EUACC sign-in.
+
+**ChatGPT (Plus and above, web):** turn on Developer mode, add a custom MCP connector with the endpoint, and sign in to EUACC when ChatGPT sends you there.
+
+**Grok:** Settings → Connectors → add a custom MCP connector with the endpoint, then sign in to EUACC when prompted.
+
+**Any other MCP client that supports OAuth** finds everything on its own from the endpoint:
+
+| What | URL |
+| --- | --- |
+| Protected resource metadata (RFC 9728) | `https://www.euacc.ai/.well-known/oauth-protected-resource` |
+| Authorization server metadata (RFC 8414) | `https://www.euacc.ai/.well-known/oauth-authorization-server` |
+| Dynamic client registration (RFC 7591) | `https://www.euacc.ai/oauth/register` |
+| Authorization (code flow, PKCE S256 required) | `https://www.euacc.ai/oauth/authorize` |
+| Token | `https://www.euacc.ai/oauth/token` |
+| Revocation (RFC 7009) | `https://www.euacc.ai/oauth/revoke` |
+
+How it behaves:
+- Scope is `mcp:read` (read-only data lookups). Tokens are issued only for the resource `https://www.euacc.ai/api/mcp`; a request for any other `resource` gets `invalid_target`.
+- Public clients (`token_endpoint_auth_method: none`) authenticate with PKCE. Clients that register with `client_secret_post` get a `client_secret` and must send it on every token, refresh and revoke request.
+- Access tokens last 30 days, refresh tokens 180 days. Each refresh returns a new refresh token and retires the old one.
+- To disconnect an app, open **[your connector page](https://www.euacc.ai/dashboard/connector)** and click *Disconnect* under *Connected apps*. That revokes its tokens at once. Clients can also call the revocation endpoint themselves.
+
+### Option B: connector key (API key)
+
+**1. Get a key.** Sign in at **[euacc.ai](https://www.euacc.ai/dashboard/connector)** and click *Generate key*. The key is shown once, so copy it. One active key per account; revoke it on the same page to make a new one.
+
+**2. Send it as a Bearer header.**
 
 **Claude Code**
 ```bash
 claude mcp add --transport http euacc https://www.euacc.ai/api/mcp \
   --header "Authorization: Bearer YOUR_EUACC_KEY"
 ```
-
-**ChatGPT & Grok** — add a custom MCP connector under their connector settings, using the same endpoint and `Authorization` header.
 
 **Any client via a config file** (Cursor, Windsurf, etc.):
 ```json
@@ -69,7 +102,7 @@ claude mcp add --transport http euacc https://www.euacc.ai/api/mcp \
 }
 ```
 
-**Clients that only speak stdio** — bridge to the remote server with [`mcp-remote`](https://www.npmjs.com/package/mcp-remote):
+**Clients that only speak stdio:** bridge to the remote server with [`mcp-remote`](https://www.npmjs.com/package/mcp-remote):
 ```json
 {
   "mcpServers": {
@@ -104,7 +137,7 @@ Every figure traces to an official EU source and is re-verified continuously.
 
 **Which AI assistants work with it?** Claude (web, desktop, Claude Code), ChatGPT, Grok, and any MCP-compatible client.
 
-**Do I need an account?** Yes — free, needed for the key.
+**Do I need an account?** Yes. It is free, and you use it either to sign in from your AI (OAuth) or to generate a connector key.
 
 **Does it write my application?** No. It's a data connector; drafting happens inside your own AI, with your own private context, which EUACC never sees.
 
